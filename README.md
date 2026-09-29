@@ -1,6 +1,6 @@
 # Cuidar Move a Gente — protótipo da landing page
 
-Protótipo estático, responsivo, com identidade original da campanha e formulário demonstrativo. Atualização: 28/09/2026.
+Protótipo estático, responsivo, com identidade original da campanha e formulário demonstrativo. Atualização: 29/09/2026.
 
 ## Acesso
 
@@ -10,10 +10,11 @@ Publicado no GitHub Pages a partir da branch `main`, pasta raiz.
 
 ## Arquivos
 
-- `index.html`: página, conteúdo e regulamento integral da minuta V3.
-- `style.css`: tipografia, composição, responsividade e animações.
+- `index.html`: página, conteúdo e regulamento integral da minuta V4.
+- `style.css`: estrutura, composição e interações visuais de base.
+- `poster.css`: refinamento conforme o cartaz, paleta, Montserrat variável, oferta com presente e adaptações móveis.
 - `app.js`: duas etapas do cadastro, máscaras, validação e diálogos.
-- `assets`: selo 3D e textura enviados pelo cliente, marca Trok, fontes Bricolage Grotesque, regulamento PDF/Word e favicon.
+- `assets`: selo 3D e textura enviados pelo cliente, marca Trok, imagens originais extraídas do SVG do cartaz (presente, fundo e mulher com laço), Montserrat sob licença OFL, fontes legadas Bricolage Grotesque, regulamento PDF/Word e favicon.
 
 ## Prévia local
 
@@ -35,4 +36,10 @@ Para adicionar logos, substituir cada `.logo-placeholder` por uma imagem com nom
 
 ## Verificação
 
-Fluxo de cadastro em duas etapas, erro de campos obrigatórios, máscaras, validação de CPF, limpeza dos campos, diálogos, navegação, layout móvel e comparação do regulamento com a minuta V3. Animações respeitam `prefers-reduced-motion`.
+Fluxo de cadastro em duas etapas, erro de campos obrigatórios, máscaras, validação de CPF, limpeza dos campos, diálogos, navegação, layout móvel e comparação do regulamento com a minuta V4. Animações respeitam `prefers-reduced-motion`.
+
+## Refinamento de 29/09
+
+O presente destaca os 10% de desconto da Trok em todos os serviços e a oxi-sanitização grátis exclusivamente para mulheres. O botão da oferta leva às orientações da Trok; WhatsApp oficial ainda não informado. A minuta V4 inclui esse benefício e mantém as condições operacionais abertas para definição.
+
+Paleta extraída do SVG: creme `#fce6e6`, rosa `#fad6d8`, coral `#ee737f` e rosa antigo `#a15061`. O cartaz usa Fractul; a página usa Montserrat variável como aproximação geométrica de uso aberto, com maior peso nos títulos. Os elementos gráficos originais foram reaproveitados sem redesenho.
