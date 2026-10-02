@@ -1,12 +1,12 @@
 # Cuidar Move a Gente — protótipo da landing page
 
-Protótipo estático, responsivo, com identidade original da campanha e formulário demonstrativo. Atualização: 29/09/2026.
+Protótipo estático, responsivo, com identidade original da campanha e formulário demonstrativo. Atualização: 02/10/2026.
 
 ## Acesso
 
-[Visualizar o protótipo](https://agenciaothon.github.io/cuidar-move-a-gente-landing-page/)
+[Site na Hostinger](https://cuidarmoveagente.com.br/) · [Espelho no GitHub Pages](https://agenciaothon.github.io/cuidar-move-a-gente-landing-page/)
 
-Publicado no GitHub Pages a partir da branch `main`, pasta raiz.
+Hospedado na Hostinger. O espelho do GitHub Pages usa a branch `main`, pasta raiz.
 
 ## Arquivos
 
@@ -30,9 +30,9 @@ Não há protocolo, saldo de pontos ou chances simulados. A geração de chances
 
 ## Antes de transformar em cadastro oficial
 
-Concluir as definições da minuta; inserir os 14 nomes/logos e compromissos individuais; implementar serviço de cadastro e validação de compras com controle de acesso, deduplicação e área individual protegida; finalizar aviso de privacidade e canais oficiais. Somente então substituir os textos e o comportamento demonstrativos.
+Concluir as definições da minuta; concluir os dados das unidades e compromissos individuais; implementar serviço de cadastro e validação de compras com controle de acesso, deduplicação e área individual protegida; finalizar aviso de privacidade e canais oficiais. Somente então substituir os textos e o comportamento demonstrativos.
 
-Para adicionar logos, substituir cada `.logo-placeholder` por uma imagem com nome da empresa no atributo `alt`, mantendo a área `.partner-logos`. Atualizar as opções de `#partner` com as empresas e unidades elegíveis.
+Os 14 logos em `assets/parceiros/` foram extraídos das camadas do SVG atualizado do cartaz. A grade e as opções de `#partner` usam as marcas fornecidas. O logo da Rede Feminina aparece em um bloco de destaque após a abertura e no rodapé. Os arquivos preservam as cores e os elementos originais do cartaz.
 
 ## Verificação
 
