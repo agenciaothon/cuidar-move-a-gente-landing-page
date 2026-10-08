@@ -1,0 +1,11 @@
+Options -Indexes
+<Files "campaign.php">
+  Require all denied
+</Files>
+<IfModule mod_headers.c>
+  Header always set Cache-Control "no-store, private, max-age=0"
+</IfModule>
+<IfModule LiteSpeed>
+  CacheDisable public /
+  CacheDisable private /
+</IfModule>

@@ -50,3 +50,14 @@ body{font-family:var(--font);background:var(--paper);color:var(--ink);font-weigh
 @media(max-width:1150px){.partner-logos{grid-template-columns:repeat(4,minmax(0,1fr));}.cause-highlight{gap:35px;padding:32px;grid-template-columns:190px 1fr;}}
 @media(max-width:700px){.cause-highlight{grid-template-columns:1fr;gap:24px;text-align:center;margin-top:34px;padding:30px 24px;border-radius:20px;}.cause-logo img{width:174px;height:174px;}.cause-copy h2{font-size:32px;letter-spacing:-1.2px;}.cause-copy h2 br{display:block;}.cause-copy p{font-size:14px;}.cause-copy .eyebrow{font-size:10px;}.partner-logos{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;}.partner-logo{padding:19px 14px 15px;gap:12px;}.partner-logo-art{height:100px;}.partner-logo figcaption{font-size:11px;}.partner-note{font-size:11px;}.footer-cause>img{width:132px;height:132px;}}
 @media(prefers-reduced-motion:reduce){.partner-logo{transition:none;}.partner-logo:hover{transform:none;}}
+
+/* Cadastro direto — 08/10/2026 */
+.form-trap{position:absolute;left:-10000px;width:1px;height:1px;overflow:hidden}
+#registration-status{margin:0 0 18px;line-height:1.5}
+#registration-status .inline-link{margin-left:5px}
+#registration-form .check{font-size:13px;margin:13px 0}
+#registration-form .field{margin-bottom:14px}
+#registration-form fieldset{min-width:0}
+#registration-form button[disabled]{opacity:.58;cursor:wait;transform:none}
+#success #restart{display:block;margin-top:24px;font-size:14px}
+.dialog-body th{text-align:left;background:#fce6e6;padding:12px;border:1px solid #ead1d5}

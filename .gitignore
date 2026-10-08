@@ -1,1 +1,7 @@
 .DS_Store
+config.php
+cuidar-private/
+*.sqlite*
+*.csv
+*.zip
+.env*
