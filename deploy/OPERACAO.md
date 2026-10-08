@@ -12,7 +12,7 @@ Acesso administrativo: Hostinger → site → Bancos de dados → phpMyAdmin. Ne
 
 1. Usuário cria banco e usuário exclusivos no hPanel e define sua senha.
 2. Importar `schema.sql` nesse banco via phpMyAdmin. Não usar bancos de outros sites.
-3. Colocar `config.php` preenchido dentro de `cuidar-private`, ao lado de `public_html`. O modelo é `config.example.php`; não publicar a configuração real. Manter acesso restrito e permissões 600 quando suportado.
+3. Colocar `config.php` preenchido dentro de `cuidar-private`, ao lado de `public_html`. O modelo é `config.example.php`; não publicar a configuração real. A senha existente fica em `cuidar-private/db-password.txt`, sem aspas ou código PHP, e é lida somente pelo servidor. O titular a preenche diretamente no painel. Restringir a pasta a 700 e os arquivos a 600 quando suportado. Nunca copiar a senha para o GitHub, chat ou pasta pública.
 4. Gerar `rate_secret` aleatório com no mínimo 32 caracteres, apenas no arquivo privado. A proteção usa HMAC do IP + hora, não guarda o IP em claro, e limpa buckets antigos após 24 horas quando houver novos envios.
 5. Confirmar e publicar o prazo de retenção aprovado no aviso; só então ajustar `privacy_retention_approved` e `registration_enabled` para true. Confirmar banco/tabelas e backup no painel.
 6. Subir apenas index.html, app.js, poster.css, API e regulamentos atualizados. Preservar os assets existentes. Não colocar tests, deploy ou dados na pasta pública.
