@@ -4,6 +4,15 @@
 <head>
 <meta charset="utf-8"/><meta content="width=device-width,initial-scale=1" name="viewport"/>
 <meta content="form-action 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'" http-equiv="Content-Security-Policy"/>
+<script>
+// Printed campaign QR codes still point to GitHub Pages, which cannot save registrations.
+if (window.location.hostname === 'agenciaothon.github.io' &&
+    window.location.pathname.startsWith('/cuidar-move-a-gente-landing-page/')) {
+  window.location.replace('https://cuidarmoveagente.com.br/' + window.location.search +
+    (window.location.hash || '#cadastro'));
+}
+</script>
+<link rel="canonical" href="https://cuidarmoveagente.com.br/"/>
 <meta content="#ee737f" name="theme-color"/><meta content="Cuidar Move a Gente. Uma corrente de cuidado por Três Lagoas, idealizada pela Trok Car Brasil, em apoio à Rede Feminina de Combate ao Câncer." name="description"/>
 <title>Cuidar Move a Gente — Outubro Rosa 2026</title>
 <link href="assets/favicon.svg" rel="icon" type="image/svg+xml"/>
