@@ -1,0 +1,63 @@
+<?php
+declare(strict_types=1);
+require __DIR__.'/../api/metrics.php';
+$checks=0;
+function check(bool $ok,string $message): void { global $checks;if(!$ok)throw new RuntimeException($message);$checks++; }
+$db=new PDO('sqlite::memory:',null,null,[PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION]);
+$schema=file_get_contents(__DIR__.'/../deploy/metrics-schema.sql');
+$schema=preg_replace('/--[^\n]*\n/','',$schema);
+$schema=preg_replace('/CHARACTER SET ascii COLLATE ascii_bin|ENGINE=InnoDB DEFAULT CHARSET=utf8mb4/','',$schema);
+$schema=preg_replace('/^\s*KEY[^\n]*\n/m','',$schema);
+$schema=preg_replace('/,\s*\)/',')',$schema);
+$schema=str_replace('INT UNSIGNED','INTEGER',$schema);
+$schema=preg_replace('/INSERT IGNORE[\s\S]*$/','',$schema);
+$db->exec($schema);
+$db->exec('CREATE TABLE participants (created_at_utc DATETIME NOT NULL,partner VARCHAR(40) NOT NULL)');
+$db->exec("INSERT INTO campaign_metric_settings VALUES ('measurement_started_at','2026-10-17 12:00:00')");
+$db->exec("INSERT INTO participants VALUES ('2026-10-08 17:38:00','trok'),('2026-10-17 13:00:00','trok')");
+$secret=str_repeat('x',64);$visit=str_repeat('a',32);$attempt=str_repeat('b',32);$time=new DateTimeImmutable('2026-10-17 12:00:00',new DateTimeZone('UTC'));
+function event(string $name,array $extra=[]): array {global $visit,$attempt,$secret;return metricsValidate(array_merge(['event'=>$name,'event_id'=>bin2hex(random_bytes(16)),'visit'=>$visit,'attempt'=>$name==='page_view'?'':$attempt,'token'=>metricsToken($visit,$secret),'field'=>'cpf','source'=>'cartaz','partner'=>'trok','device'=>'mobile'],$extra),$secret);}
+$open=event('page_view');metricsRecord($db,$open,$time);metricsRecord($db,$open,$time);
+check((int)$db->query('SELECT page_views FROM campaign_visits')->fetchColumn()===1,'Retry counted twice');
+metricsRecord($db,event('page_view'),$time);check((int)$db->query('SELECT page_views FROM campaign_visits')->fetchColumn()===2,'Reload missing');
+metricsRecord($db,event('form_start'),$time);metricsRecord($db,event('progress',['field'=>'email']),$time->modify('+1 minute'));
+check($db->query('SELECT last_field FROM campaign_form_attempts')->fetchColumn()==='email','Last categorical field missing');
+$clean=event('progress',['name'=>'SHOULD NEVER BE STORED','cpf'=>'00000000000','phone'=>'x']);
+check(!isset($clean['name'],$clean['cpf'],$clean['phone']),'Unexpected personal values accepted into measurement');
+$error=event('validation_error',['code'=>'cpf_invalid']);metricsRecord($db,$error,$time);metricsRecord($db,$error,$time);
+check((int)$db->query('SELECT COUNT(*) FROM campaign_metric_errors')->fetchColumn()===1,'Error retry counted twice');
+$report=metricsReport($db,'2026-10-08','2026-11-08',$time->modify('+32 minutes'));
+check($report['summary']['abandoned']===1 && $report['summary']['active']===0,'Inactivity not classified');
+check($report['summary']['registrations']===2 && $report['baseline_registrations']===1,'Historical registrations omitted');
+metricsRecord($db,event('progress',['field'=>'partner']),$time->modify('+33 minutes'));
+$report=metricsReport($db,'2026-10-08','2026-11-08',$time->modify('+34 minutes'));
+check($report['summary']['abandoned']===0 && $report['summary']['active']===1,'Resumed attempt still abandoned');
+metricsRegistration($db,['visit'=>$visit,'attempt'=>$attempt,'token'=>'invalid'],$secret,true,$time->modify('+35 minutes'));
+check($db->query('SELECT confirmed_at_utc FROM campaign_form_attempts')->fetchColumn()===null,'Invalid signature confirmed attempt');
+metricsRegistration($db,['visit'=>$visit,'attempt'=>$attempt,'token'=>metricsToken($visit,$secret)],$secret,true,$time->modify('+35 minutes'));
+metricsRecord($db,event('progress',['field'=>'name']),$time->modify('+36 minutes'));
+check($db->query('SELECT last_stage FROM campaign_form_attempts')->fetchColumn()==='confirmacao','Late telemetry downgraded confirmation');
+$report=metricsReport($db,'2026-10-08','2026-11-08',$time->modify('+90 minutes'));
+check($report['summary']['confirmed']===1 && $report['summary']['new_tracked']===1 && $report['summary']['abandoned']===0,'Server confirmation not authoritative');
+$attempt=str_repeat('c',32);
+metricsRegistration($db,['visit'=>$visit,'attempt'=>$attempt,'token'=>metricsToken($visit,$secret)],$secret,false,$time->modify('+37 minutes'));
+$report=metricsReport($db,'2026-10-08','2026-11-08',$time->modify('+90 minutes'));
+check($report['summary']['confirmed']===2 && $report['summary']['new_tracked']===1,'Duplicate CPF counted as new registration');
+check($report['summary']['visits_confirmed']===1 && $report['summary']['visits_started']===1,'Funnel counted multiple people as multiple visits');
+$attempt=str_repeat('d',32);metricsRecord($db,event('form_start'),$time->modify('+80 minutes'));
+$report=metricsReport($db,'2026-10-08','2026-11-08',$time->modify('+90 minutes'));
+check($report['summary']['active']===1 && $report['summary']['abandoned']===0,'Active form classified as abandoned');
+$report=metricsReport($db,'2026-10-08','2026-11-08',$time->modify('+111 minutes'));
+check($report['summary']['active']===0 && $report['summary']['abandoned']===1,'Abandonment cutoff incorrect');
+$visit=str_repeat('e',32);metricsRecord($db,event('page_view'),$time->modify('+90 minutes'));
+$report=metricsReport($db,'2026-10-08','2026-11-08',$time->modify('+111 minutes'));
+check($report['summary']['not_started']===1 && $report['summary']['visits']===2,'Visitor without start misclassified');
+$attempt=str_repeat('b',32);$before=(int)$db->query('SELECT COUNT(*) FROM campaign_metric_receipts')->fetchColumn();
+try{metricsRecord($db,event('progress'),$time);throw new RuntimeException('Cross-session attempt accepted');}catch(InvalidArgumentException $e){$checks++;}
+check((int)$db->query('SELECT COUNT(*) FROM campaign_metric_receipts')->fetchColumn()===$before,'Rejected event was committed');
+check(!metricsContext(['visit'=>$visit,'attempt'=>$attempt,'token'=>str_repeat('0',64)],$secret),'Forged context accepted');
+try{event('progress',['field'=>'full_name_with_value']);throw new RuntimeException('Arbitrary field accepted');}catch(InvalidArgumentException $e){$checks++;}
+$visit=str_repeat('f',32);metricsRecord($db,event('page_view'),new DateTimeImmutable('2026-10-18 03:59:00',new DateTimeZone('UTC')));
+$oneDay=metricsReport($db,'2026-10-17','2026-10-17',$time->modify('+1 day'));
+check($oneDay['summary']['visits']===3 && count($oneDay['daily_visits'])===1,'UTC-4 day boundaries wrong');
+echo "Passed $checks measurement checks; SQLite in memory; no production data.\n";

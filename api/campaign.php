@@ -2,7 +2,7 @@
 declare(strict_types=1);
 
 const CAMPAIGN_TERMS = 'v5-2026-10-08';
-const CAMPAIGN_PRIVACY = '2026-10-08';
+const CAMPAIGN_PRIVACY = '2026-10-17';
 const CAMPAIGN_PARTNERS = ['trok', 'pizzaria-da-mama', 'brutus-ms', 'best-life', 'apollo-pet-salon', 'mais-tintas', 'geracao-store', 'alvorada-veiculos', 'beone', 'jessica-walter', 'frigodil', 'tricarne', 'ccaa', 'concept', 'virtus'];
 const CAMPAIGN_STATES = ['AC','AL','AP','AM','BA','CE','DF','ES','GO','MA','MT','MS','MG','PA','PB','PR','PE','PI','RJ','RN','RS','RO','RR','SC','SP','SE','TO'];
 
@@ -44,15 +44,17 @@ function campaignValidate(array $input): array {
     unset($data['website']);
     return $data;
 }
-function campaignRegister(PDO $db, array $data, DateTimeImmutable $now): void {
+function campaignRegister(PDO $db, array $data, DateTimeImmutable $now): bool {
     if (!campaignIsOpen($now)) throw new DomainException('As inscrições estão fora do período da campanha.');
     $statement = $db->prepare('INSERT INTO participants (full_name, cpf, phone, email, city, state, partner, adult_declared, terms_version, privacy_version, created_at_utc) VALUES (?, ?, ?, ?, ?, ?, ?, 1, ?, ?, ?)');
     try {
         $statement->execute([$data['name'], $data['cpf'], $data['phone'], $data['email'], $data['city'], $data['state'], $data['partner'], CAMPAIGN_TERMS, CAMPAIGN_PRIVACY, $now->setTimezone(new DateTimeZone('UTC'))->format('Y-m-d H:i:s')]);
+        return true;
     } catch (PDOException $e) {
         $mysqlDuplicate = $db->getAttribute(PDO::ATTR_DRIVER_NAME) === 'mysql' && (int)($e->errorInfo[1] ?? 0) === 1062;
         $testDuplicate = $db->getAttribute(PDO::ATTR_DRIVER_NAME) === 'sqlite' && str_contains($e->getMessage(), 'UNIQUE constraint failed: participants.cpf');
         if (!$mysqlDuplicate && !$testDuplicate) throw $e;
         // A second submission never overwrites existing personal details.
+        return false;
     }
 }

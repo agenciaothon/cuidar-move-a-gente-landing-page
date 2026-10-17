@@ -20,6 +20,12 @@ O cadastro real exige PHP 8.1 ou superior, PDO MySQL, mbstring e um banco dedica
 
 Configuração, exportação privada e proposta de apuração estão em [deploy/OPERACAO.md](deploy/OPERACAO.md). O arquivo real de configuração fica em `cuidar-private/config.php`, fora de `public_html`. O modelo é `deploy/config.example.php`; inicia com inscrições desativadas.
 
+## Medição e resultados
+
+Atualização de 17/10/2026: sessões de navegação, início do formulário, erros por categoria, confirmação no servidor e desistências estimadas após 30 minutos sem atividade. O painel privado em `/painel/` oferece filtros, evolução diária, origem, parceiros, CSV e impressão/PDF. A medição não registra o conteúdo dos campos nem altera a regra de uma participação por CPF. Visitas anteriores à implantação não podem ser reconstruídas.
+
+Implantação, senha inicial do responsável, definições e limites estão em [deploy/MEDICAO.md](deploy/MEDICAO.md). A configuração de acesso fica fora de `public_html` e não integra este repositório. Testes adicionais: `php tests/metrics.php` e `node tests/tracking.cjs`.
+
 ## Prévia e testes
 
 `php -S 127.0.0.1:8787 -t .`

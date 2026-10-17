@@ -1,6 +1,7 @@
 <?php
 declare(strict_types=1);
 require_once __DIR__ . '/campaign.php';
+require_once __DIR__ . '/metrics.php';
 header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: no-store, private, max-age=0');
 header('X-Content-Type-Options: nosniff');
@@ -54,7 +55,10 @@ try {
     if (!is_array($input)) reply(400, ['message'=>'Envio inválido.']);
     try { $data = campaignValidate($input); }
     catch (InvalidArgumentException $e) { reply(422, ['message'=>$e->getMessage()]); }
-    campaignRegister($db, $data, $now);
+    $created = campaignRegister($db, $data, $now);
+    // Measurement is independent: a reporting failure must never reject a saved registration.
+    try { metricsRegistration($db, $input['_measurement'] ?? null, $config['rate_secret'], $created, $now); }
+    catch (Throwable $measurementError) { error_log('Campaign measurement unavailable after registration'); }
     reply(200, ['ok'=>true]);
 } catch (DomainException $e) {
     reply(410, ['message'=>$e->getMessage()]);

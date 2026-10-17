@@ -8,15 +8,18 @@
 // Printed campaign QR codes still point to GitHub Pages, which cannot save registrations.
 if (window.location.hostname === 'agenciaothon.github.io' &&
     window.location.pathname.startsWith('/cuidar-move-a-gente-landing-page/')) {
-  window.location.replace('https://cuidarmoveagente.com.br/' + window.location.search +
-    (window.location.hash || '#cadastro'));
+  const destination = new URL('https://cuidarmoveagente.com.br/');
+  destination.search = window.location.search;
+  if (!destination.searchParams.has('origem')) destination.searchParams.set('origem', 'qr-legado');
+  destination.hash = window.location.hash || '#cadastro';
+  window.location.replace(destination.href);
 }
 </script>
 <link rel="canonical" href="https://cuidarmoveagente.com.br/"/>
 <meta content="#ee737f" name="theme-color"/><meta content="Cuidar Move a Gente. Uma corrente de cuidado por Três Lagoas, idealizada pela Trok Car Brasil, em apoio à Rede Feminina de Combate ao Câncer." name="description"/>
 <title>Cuidar Move a Gente — Outubro Rosa 2026</title>
 <link href="assets/favicon.svg" rel="icon" type="image/svg+xml"/>
-<link href="style.css" rel="stylesheet"/><link href="poster.css?v=20261008-cadastro" rel="stylesheet"/><script defer="" src="app.js?v=20261008-cadastro"></script>
+<link href="style.css" rel="stylesheet"/><link href="poster.css?v=20261008-cadastro" rel="stylesheet"/><script defer src="tracking.js?v=20261017-medicao"></script><script defer="" src="app.js?v=20261017-medicao"></script>
 </head>
 <body>
 <a class="skip-link" href="#cadastro">Ir para o cadastro</a>
@@ -190,6 +193,7 @@ if (window.location.hostname === 'agenciaothon.github.io' &&
 <dialog aria-labelledby="privacy-title" id="privacidade"><div class="dialog-top"><div><span class="eyebrow">PRIVACIDADE DO CADASTRO</span><h2 id="privacy-title">Seus dados, com cuidado.</h2></div><button aria-label="Fechar aviso de privacidade" class="close-dialog">×</button></div><div class="dialog-body"><p>A responsável pelo cadastro é a Trok Car Brasil — TROK CAR BRASIL LTDA, CNPJ 37.561.420/0001-57, Av. Capitão Olinto Mancine, 1596, Colinos, Três Lagoas/MS.</p>
 <p>Nome, CPF, celular, e-mail, cidade, UF e estabelecimento são usados para registrar sua participação, evitar duplicidades, realizar a apuração, contatar contemplados e entregar os prêmios. Registramos também a data de inscrição e a versão dos termos aceitos. Não solicitamos informações de saúde.</p>
 <p>Os cadastros serão armazenados em banco de dados da campanha na Hostinger, com acesso restrito à organização e aos responsáveis técnicos pela operação. Não haverá lista pública de inscritos nem compartilhamento automático dos contatos com os parceiros.</p>
+<p>Para acompanhar o funcionamento da página, registramos sessões de navegação, início e etapas do preenchimento, categorias de erro, confirmações e estimativas de desistência após 30 minutos sem atividade. Essa medição usa identificadores aleatórios temporários na aba do navegador, sem cookies adicionais de publicidade, sem registrar o conteúdo dos campos e sem vincular os indicadores ao nome, CPF, telefone ou e-mail. Identificamos apenas categorias de origem, tipo de tela e estabelecimento selecionado. Os relatórios de medição são agregados e têm acesso restrito. Atualização desta informação: 17/10/2026.</p>
 <p>O CPF assegura uma única participação. Ele não é uma senha: a página não permite consultar ou alterar dados pessoais apenas informando um CPF. Pedidos de correção e outras solicitações devem ser feitos pelo canal oficial.</p>
 <p>Não enviaremos ofertas de parceiros com base neste cadastro. Uma eventual autorização de marketing deverá ser separada, facultativa e identificar as empresas destinatárias.</p>
 <p>Usamos um cookie de sessão necessário à segurança do formulário e controles temporários contra envios automatizados. Não usamos o formulário para rastreamento publicitário.</p>

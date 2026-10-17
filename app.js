@@ -20,19 +20,20 @@ function validCPF(value) {
   }
   return true;
 }
-function showError(message, field) {
+function showError(message, field, code='unknown', kind='validation_error') {
+  window.campaignMetrics?.error(code, field?.id || '', kind);
   error.textContent = message; error.hidden = false;
   if (field) { field.setAttribute('aria-invalid', 'true'); field.focus(); }
   return false;
 }
 function validate() {
   for (const field of form.querySelectorAll('[required]')) {
-    if (!field.checkValidity()) return showError(field.type === 'checkbox' ? 'Confirme os itens obrigatórios para participar.' : 'Confira e preencha os campos obrigatórios.', field);
+    if (!field.checkValidity()) return showError(field.type === 'checkbox' ? 'Confirme os itens obrigatórios para participar.' : 'Confira e preencha os campos obrigatórios.', field, 'required');
   }
-  if (form.elements.name.value.trim().split(/\s+/).length < 2) return showError('Informe seu nome completo.', form.elements.name);
-  if (!validCPF(form.elements.cpf.value)) return showError('Confira o CPF informado.', form.elements.cpf);
+  if (form.elements.name.value.trim().split(/\s+/).length < 2) return showError('Informe seu nome completo.', form.elements.name, 'name_invalid');
+  if (!validCPF(form.elements.cpf.value)) return showError('Confira o CPF informado.', form.elements.cpf, 'cpf_invalid');
   const phone = digits(form.elements.phone.value);
-  if (!/^[1-9]\d{9,10}$/.test(phone)) return showError('Informe um telefone com DDD.', form.elements.phone);
+  if (!/^[1-9]\d{9,10}$/.test(phone)) return showError('Informe um telefone com DDD.', form.elements.phone, 'phone_invalid');
   return true;
 }
 async function requestSession() {
@@ -53,6 +54,7 @@ async function requestSession() {
     submit.disabled = false;
     return true;
   } catch (e) {
+    window.campaignMetrics?.error(e.name === 'TimeoutError' || e.name === 'AbortError' ? 'timeout' : 'availability_failed', '', 'request_error');
     csrf = '';
     status.textContent = e.name === 'TimeoutError' || e instanceof TypeError || e instanceof SyntaxError ? 'Não foi possível conectar ao cadastro. Recarregue a página para tentar novamente.' : e.message;
     const retry = document.createElement('button');
@@ -79,6 +81,7 @@ form.addEventListener('submit', async e => {
   const payload = Object.fromEntries(new FormData(form));
   payload.adult = document.querySelector('#adult').checked;
   payload.terms = document.querySelector('#terms').checked;
+  payload._measurement = window.campaignMetrics?.context() || null;
   try {
     const response = await fetch('api/inscricoes.php', {
       method: 'POST', credentials: 'same-origin', cache: 'no-store',
@@ -88,21 +91,25 @@ form.addEventListener('submit', async e => {
     const data = await response.json();
     if (!response.ok || data.ok !== true) {
       if (response.status === 403) { csrf = ''; await requestSession(); }
-      throw new Error(data.message || 'Não foi possível concluir. Confira os dados e tente novamente.');
+      const failure = new Error(data.message || 'Não foi possível concluir. Confira os dados e tente novamente.');
+      failure.metricCode = ({403:'session_expired',410:'campaign_closed',429:'rate_limited',503:'service_unavailable'})[response.status] || 'server_rejected';
+      throw failure;
     }
     form.reset(); form.hidden = true; status.hidden = true;
     document.querySelector('.form-intro').hidden = true;
     document.querySelector('#success').hidden = false;
     document.querySelector('#success').focus();
+    window.campaignMetrics?.complete();
   } catch (e) {
     showError(e.name === 'TimeoutError' || e instanceof TypeError || e instanceof SyntaxError
       ? 'Não recebemos a confirmação do servidor. Tente enviar novamente: o mesmo CPF nunca gera uma segunda participação.'
-      : e.message);
+      : e.message, null, e.metricCode || (e.name === 'TimeoutError' || e.name === 'AbortError' ? 'timeout' : e instanceof SyntaxError ? 'invalid_response' : 'network'), 'request_error');
   } finally {
     sending = false; submit.disabled = !csrf; submitLabel.textContent = 'Cadastrar e participar';
   }
 });
 document.querySelector('#restart').addEventListener('click', () => {
+  window.campaignMetrics?.restart();
   form.reset(); form.hidden = false; status.hidden = false;
   document.querySelector('.form-intro').hidden = false;
   document.querySelector('#success').hidden = true; error.hidden = true;
